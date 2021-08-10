@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable("Transactions", {
+    return queryInterface.createTable("transactions", {
       id: {
         type: Sequelize.UUID,
         default: Sequelize.UUIDV4,
@@ -15,30 +15,27 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      user_id: {
+      userId: {
         type: Sequelize.UUID,
         references: {
-          model: "Users",
+          model: "users",
           key: "id",
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      created_at: {
+      createdAt: {
+        allowNull: false,
         type: Sequelize.DATE,
-        default: new Date(),
       },
-      updated_at: {
-        type: Sequelize.DATE,
-        default: new Date(),
-      },
-      deleted_at: {
+      updatedAt: {
+        allowNull: false,
         type: Sequelize.DATE,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("Transactions");
+    return queryInterface.dropTable("transactions");
   },
 };

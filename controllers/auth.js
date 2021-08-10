@@ -1,9 +1,10 @@
 require("dotenv").config();
 
-const { User } = require("../database/models");
+const User = require("../database/models").user;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_TOKEN } = process.env;
+const uuid = require('uuid')
 
 exports.register = async (req, res, next) => {
   try {
@@ -32,8 +33,8 @@ exports.register = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
     await User.create({
+      id: uuid.v4(),
       username,
       password: hashedPassword,
       email,

@@ -1,38 +1,19 @@
-const { Model, DataTypes } = require("sequelize");
-const connection = require("../connection");
 
-class User extends Model {}
 
-User.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+module.exports = (sequelize, DataTypes) => {
+  const user = sequelize.define(
+    "user",
+    {
+      username: DataTypes.STRING,
+      password: DataTypes.STRING,
+      email: DataTypes.STRING,
+      role: DataTypes.STRING,
     },
-    username: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "Users",
-    sequelize: connection,
-    paranoid: false,
-    timestamps: false,
-  }
-);
-
-module.exports = User;
+    {}
+  );
+  user.associate = function (models) {
+    user.hasMany(models.order), 
+    user.hasMany(models.transaction);
+  };
+  return user;
+};

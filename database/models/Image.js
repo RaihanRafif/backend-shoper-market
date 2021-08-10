@@ -1,27 +1,16 @@
-const { Model, DataTypes } = require("sequelize");
-const connection = require("../connection");
-
-class Image extends Model {}
-
-Image.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+"use strict";
+module.exports = (sequelize, DataTypes) => {
+  const image = sequelize.define(
+    "image",
+    {
+      image_url: DataTypes.STRING,
+      productId: DataTypes.INTEGER,
     },
-    image_url: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "Images",
-    sequelize: connection,
-    paranoid: true,
-    timestamps: true,
-    underscored: true,
-  }
-);
-
-module.exports = Image;
+    {}
+  );
+  image.associate = function (models) {
+    // associations can be defined here
+    image.belongsTo(models.product);
+  };
+  return image;
+};

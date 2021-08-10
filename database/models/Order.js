@@ -1,34 +1,22 @@
-const { Model, DataTypes } = require("sequelize");
-const connection = require("../connection");
-
-class Order extends Model {}
-
-Order.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+"use strict";
+module.exports = (sequelize, DataTypes) => {
+  const order = sequelize.define(
+    "order",
+    {
+      productId: DataTypes.STRING,
+      product_price: DataTypes.INTEGER,
+      product_discount: DataTypes.INTEGER,
+      product_qty: DataTypes.INTEGER,
+      userId: DataTypes.STRING,
+      transactionId: DataTypes.STRING,
     },
-    product_price: {
-      type: DataTypes.FLOAT(10),
-      allowNull: false,
-    },
-    product_discount: {
-      type: DataTypes.FLOAT(10),
-      allowNull: false,
-    },
-    product_qty: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "Orders",
-    sequelize: connection,
-    paranoid: true,
-    underscored: true,
-  }
-);
-
-module.exports = Order;
+    {}
+  );
+  order.associate = function (models) {
+    // associations can be defined here
+    order.belongsTo(models.user), 
+    order.belongsTo(models.product);
+    order.belongsTo(models.transaction);
+  };
+  return order;
+};

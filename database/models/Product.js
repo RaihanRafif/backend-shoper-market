@@ -1,46 +1,22 @@
-const { Model, DataTypes } = require("sequelize");
-const connection = require("../connection");
-
-class Product extends Model {}
-
-Product.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+"use strict";
+module.exports = (sequelize, DataTypes) => {
+  const product = sequelize.define(
+    "product",
+    {
+      product_name: DataTypes.STRING,
+      description: DataTypes.TEXT,
+      price: DataTypes.INTEGER,
+      discount: DataTypes.INTEGER,
+      stock: DataTypes.INTEGER,
+      sex: DataTypes.STRING,
     },
-    product_name: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    price: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    discount: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    stock: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    sex: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "Products",
-    sequelize: connection,
-    paranoid: false,
-    timestamps: false,
-  }
-);
-
-module.exports = Product;
+    {}
+  );
+  product.associate = function (models) {
+    // associations can be defined here
+    product.hasMany(models.image),
+      product.hasMany(models.size),
+      product.hasMany(models.color);
+  };
+  return product;
+};

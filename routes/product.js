@@ -10,10 +10,10 @@ const { authorization } = require("../middleware/authorization");
 
 const router = Router();
 
-router.post("/", findAll);
+router.get("/", findAll);
 router.get("/:id", findById);
 router.post("/", add);
-router.patch("/", authorization, update);
-router.delete("./:id", authorization, destroy);
+router.patch("/:id", update);
+router.delete("/:id", destroy);
 
 module.exports = router;

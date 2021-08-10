@@ -1,12 +1,22 @@
-const { Product } = require("../database/models");
-const { Color } = require("../database/models");
-const { Size } = require("../database/models");
-const { Image } = require("../database/models");
+const Product = require("../database/models").product;
+const Color = require("../database/models").color;
+const Size = require("../database/models").size;
 const uuid = require("uuid");
 
 const findAll = async (req, res, next) => {
   try {
-    const product = await Product.findAll({ include: "colors" });
+    const product = await Product.findAll({
+      include: [
+        {
+          model: Color,
+          attribute: "color",
+        },
+        {
+          model: Size,
+          attribute: ["size"],
+        },
+      ],
+    });
 
     return res.status(200).json({
       status: "success",
@@ -23,7 +33,18 @@ const findById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, {
+      include: [
+        {
+          model: Color,
+          attribute: "color",
+        },
+        {
+          model: Size,
+          attribute: ["size"],
+        },
+      ],
+    });
 
     if (!product) {
       throw new Error("Product with this id not found.");
@@ -41,31 +62,43 @@ const findById = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const { user } = req;
-    const { id, product_name, description, price, discount, stock, sex } =
-      req.body;
-    const product = await Product.findByPk(id);
-
-    if (!product) {
-      throw new Error("Product with this id not found");
-    }
-
-    await Product.update({
-      product_name,
-      description,
-      price,
-      discount,
-      sex,
-      stock,
-    });
+    const { id } = req.params;
+    const { product_name, description, price, discount, stock, sex } = req.body;
 
     const updatedProduct = await Product.findByPk(id);
+    if (!updatedProduct) {
+      throw new Error("Product with this id not found");
+    }
+    const updatedColor = await Color.findOne({
+      where: {
+        productId: id,
+      },
+    });
+    const updatedSize = await Size.findOne({
+      where: {
+        productId: id,
+      },
+    });
+
+    updatedProduct.product_name = product_name;
+    updatedProduct.description = description;
+    updatedProduct.price = price;
+    updatedProduct.discount = discount;
+    updatedProduct.stock = stock;
+    updatedProduct.sex = sex;
+
+    updatedColor.color = color;
+
+    updatedSize.size = size;
+
+    await updatedProduct.save();
+    await updatedSize.save();
+    await updatedColor.save();
 
     return res.status(200).json({
       status: "success",
       code: 200,
       message: "Success update product.",
-      data: updatedProduct,
     });
   } catch (error) {
     return next(error);
@@ -75,9 +108,36 @@ const update = async (req, res, next) => {
 const destroy = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const product = await Product.findByPk(id, {
+      include: [
+        {
+          model: Color,
+          attribute: "color",
+        },
+        {
+          model: Size,
+          attribute: ["size"],
+        },
+      ],
+    });
+
+    if (!product) {
+      throw new Error("Product with this id not found.");
+    }
+
     await Product.destroy({
       where: {
         id,
+      },
+    });
+    await Color.destroy({
+      where: {
+        productId: id,
+      },
+    });
+    await Size.destroy({
+      where: {
+        productId: id,
       },
     });
 
@@ -93,7 +153,7 @@ const destroy = async (req, res, next) => {
 
 const add = async (req, res, next) => {
   try {
-    const id = uuid.v4();
+    const productId = uuid.v4();
     const {
       product_name,
       description,
@@ -105,26 +165,25 @@ const add = async (req, res, next) => {
       size,
     } = req.body;
 
-    const product_color = await Color.create({
-      id: uuid.v4(),
-      product_id: id,
-      color: color,
-    });
-
-    const product_size = await Size.create({
-      id: uuid.v4(),
-      product_id: id,
-      size: size,
-    });
-
     const product = await Product.create({
-      id,
+      id: productId,
       product_name,
       description,
       price,
       discount,
       stock,
       sex,
+    });
+    const product_color = await Color.create({
+      id: uuid.v4(),
+      productId: productId,
+      color,
+    });
+
+    const product_size = await Size.create({
+      id: uuid.v4(),
+      productId: productId,
+      size,
     });
 
     return res.status(201).json({

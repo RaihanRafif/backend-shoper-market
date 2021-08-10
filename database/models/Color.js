@@ -1,26 +1,16 @@
-const { Model, DataTypes } = require("sequelize");
-const connection = require("../connection");
-
-class Color extends Model {}
-
-Color.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+"use strict";
+module.exports = (sequelize, DataTypes) => {
+  const color = sequelize.define(
+    "color",
+    {
+      color: DataTypes.STRING,
+      productId: DataTypes.INTEGER,
     },
-    color: {
-      type: DataTypes.STRING(25),
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "Colors",
-    sequelize: connection,
-    timestamps: true,
-    underscored: true,
-  }
-);
-
-module.exports = Color;
+    {}
+  );
+  color.associate = function (models) {
+    // associations can be defined here
+    color.belongsTo(models.product);
+  };
+  return color;
+};

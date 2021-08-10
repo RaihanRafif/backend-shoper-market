@@ -2,7 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 8000;
-const { sequelize } = require("./database/models");
+const path = require("path");
+const bodyParser = require("body-parser");
+require("express-group-routes");
+const multer = require("multer");
+
+
 
 const authRouter = require("./routes/auth");
 const productRouter = require("./routes/product");
@@ -11,9 +16,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-sequelize.authenticate().then(() => {
-  console.log(`success connecting database`);
-});
+// sequelize.authenticate().then(() => {
+//   console.log(`success connecting database`);
+// });
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);
